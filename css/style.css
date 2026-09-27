@@ -56,3 +56,90 @@ section h2 {
   color: #888;
   font-style: italic;
 }
+
+/* 신청 현황 표 */
+.table-wrap {
+  overflow-x: auto;
+}
+
+.status-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.status-table th,
+.status-table td {
+  border: 1px solid #ddd;
+  padding: 0.6rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.status-table thead th {
+  background: #eef2f7;
+}
+
+.status-table tbody th {
+  background: #f9fafb;
+  text-align: left;
+}
+
+.status-table td.booked {
+  background: #dbe9ff;
+  color: #17406b;
+  font-weight: 600;
+}
+
+.hint {
+  color: #888;
+  font-size: 0.85rem;
+  margin-bottom: 0;
+}
+
+/* 폼 공통 */
+.apply-form label,
+.auth-form label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.apply-form input,
+.apply-form select,
+.apply-form textarea,
+.auth-form input {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.55rem;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: inherit;
+}
+
+button.primary {
+  background: #17406b;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.6rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button.primary:hover {
+  background: #0f2c4d;
+}
+
+section.narrow {
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+.switch-link {
+  text-align: center;
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
