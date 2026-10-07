@@ -133,6 +133,20 @@ button.primary:hover {
   background: #0f2c4d;
 }
 
+.form-message {
+  margin: 1rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.form-message.success {
+  color: #1a7f37;
+}
+
+.form-message.error {
+  color: #c62828;
+}
+
 section.narrow {
   max-width: 380px;
   margin: 0 auto;

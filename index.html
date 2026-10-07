@@ -20,48 +20,7 @@
     <section id="status-section">
       <h2>신청 현황</h2>
       <div class="table-wrap">
-        <table class="status-table">
-          <thead>
-            <tr>
-              <th>특별실</th>
-              <th>1교시</th>
-              <th>2교시</th>
-              <th>3교시</th>
-              <th>4교시</th>
-              <th>5교시</th>
-              <th>6교시</th>
-              <th>7교시</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th>그룹스터디룸 1</th>
-              <td></td><td></td><td></td><td></td>
-              <td class="booked">신청됨</td>
-              <td></td><td></td>
-            </tr>
-            <tr>
-              <th>그룹스터디룸 2</th>
-              <td></td>
-              <td class="booked">신청됨</td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th>세미나실</th>
-              <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th>화학실험실</th>
-              <td></td><td></td><td></td>
-              <td class="booked">신청됨</td>
-              <td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th>물리실험실</th>
-              <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-            </tr>
-          </tbody>
-        </table>
+        <table class="status-table" id="status-table"></table>
       </div>
       <p class="hint">칸을 누르면 신청자·인원·목적을 볼 수 있는 기능은 다음 차시에 추가할 예정입니다.</p>
     </section>
@@ -71,38 +30,26 @@
       <form class="apply-form">
         <label>
           신청 장소
-          <select name="room">
+          <select name="room" required>
             <option value="">특별실 선택</option>
-            <option>그룹스터디룸 1</option>
-            <option>그룹스터디룸 2</option>
-            <option>세미나실</option>
-            <option>화학실험실</option>
-            <option>물리실험실</option>
           </select>
         </label>
 
         <label>
           신청 교시
-          <select name="period">
+          <select name="period" required>
             <option value="">교시 선택</option>
-            <option>1교시</option>
-            <option>2교시</option>
-            <option>3교시</option>
-            <option>4교시</option>
-            <option>5교시</option>
-            <option>6교시</option>
-            <option>7교시</option>
           </select>
         </label>
 
         <label>
           신청 목적
-          <input type="text" name="purpose" placeholder="예) 화학실험 보고서 작성">
+          <input type="text" name="purpose" placeholder="예) 화학실험 보고서 작성" required>
         </label>
 
         <label>
           사용 인원 명단 (학번/이름)
-          <textarea name="members" rows="2" placeholder="예) 2207 김의현, 2208 홍길동"></textarea>
+          <textarea name="members" rows="2" placeholder="예) 2207 김의현, 2208 홍길동" required></textarea>
         </label>
 
         <label>
@@ -111,6 +58,7 @@
         </label>
 
         <button type="submit" class="primary">신청하기</button>
+        <p id="form-message" class="form-message" role="status"></p>
       </form>
     </section>
   </main>
