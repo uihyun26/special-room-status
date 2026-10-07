@@ -7,6 +7,11 @@
 1. **프론트 개발** (1~5회차): 더미 데이터로 동작하는 화면 완성, Vercel 배포
 2. **서버·DB 연동** (6~8회차): Supabase로 실제 회원가입/신청/취소 기능 구현
 
+## 배포
+- 주소: https://special-room-status.vercel.app
+- Vercel이 GitHub 저장소(main 브랜치)와 연결되어 있어, `git push`만 하면 자동으로 재배포된다.
+- 빌드 과정이 없는 정적 사이트라 Framework Preset은 `Other`로 설정했다.
+
 ## 폴더 구조
 ```
 index.html     신청 현황 표 + 신청하기 폼
