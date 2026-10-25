@@ -91,6 +91,76 @@ section h2 {
   font-weight: 600;
 }
 
+.status-table td.booked {
+  padding: 0;
+}
+
+.booked-button {
+  display: block;
+  width: 100%;
+  padding: 0.6rem;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.booked-button:hover {
+  background: #c5dbff;
+}
+
+.status-table td.booked.selected {
+  background: #17406b;
+  color: white;
+}
+
+.status-table td.booked.selected .booked-button:hover {
+  background: transparent;
+}
+
+.detail-panel {
+  margin-top: 1rem;
+  padding: 1rem 1.25rem;
+  background: #f5f8fc;
+  border: 1px solid #c5dbff;
+  border-radius: 8px;
+}
+
+.detail-panel h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+}
+
+.detail-panel dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.4rem 1rem;
+  margin: 0 0 1rem;
+}
+
+.detail-panel dt {
+  font-weight: 600;
+}
+
+.detail-panel dd {
+  margin: 0;
+}
+
+button.secondary {
+  background: white;
+  color: #17406b;
+  border: 1px solid #17406b;
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+button.secondary:hover {
+  background: #eef2f7;
+}
+
 .hint {
   color: #888;
   font-size: 0.85rem;

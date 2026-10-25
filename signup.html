@@ -19,24 +19,25 @@
   <main>
     <section id="signup-section" class="narrow">
       <h2>회원가입</h2>
-      <form class="auth-form">
+      <form class="auth-form" novalidate>
         <label>
           학번
-          <input type="text" name="studentId" placeholder="예) 2207">
+          <input type="text" name="studentId" placeholder="예) 2207" inputmode="numeric" autocomplete="username">
         </label>
         <label>
           이름
-          <input type="text" name="name" placeholder="이름 입력">
+          <input type="text" name="name" placeholder="이름 입력" autocomplete="name">
         </label>
         <label>
-          비밀번호
-          <input type="password" name="password" placeholder="비밀번호 입력">
+          비밀번호 (6자 이상)
+          <input type="password" name="password" placeholder="비밀번호 입력" autocomplete="new-password">
         </label>
         <label>
           비밀번호 확인
-          <input type="password" name="passwordConfirm" placeholder="비밀번호 다시 입력">
+          <input type="password" name="passwordConfirm" placeholder="비밀번호 다시 입력" autocomplete="new-password">
         </label>
         <button type="submit" class="primary">가입하기</button>
+        <p id="auth-message" class="form-message" role="status"></p>
       </form>
       <p class="switch-link">이미 계정이 있으신가요? <a href="login.html">로그인</a></p>
     </section>

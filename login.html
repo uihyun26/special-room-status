@@ -19,16 +19,17 @@
   <main>
     <section id="login-section" class="narrow">
       <h2>학번으로 로그인</h2>
-      <form class="auth-form">
+      <form class="auth-form" novalidate>
         <label>
           학번
-          <input type="text" name="studentId" placeholder="예) 2207">
+          <input type="text" name="studentId" placeholder="예) 2207" inputmode="numeric" autocomplete="username">
         </label>
         <label>
           비밀번호
-          <input type="password" name="password" placeholder="비밀번호 입력">
+          <input type="password" name="password" placeholder="비밀번호 입력" autocomplete="current-password">
         </label>
         <button type="submit" class="primary">로그인</button>
+        <p id="auth-message" class="form-message" role="status"></p>
       </form>
       <p class="switch-link">계정이 없으신가요? <a href="signup.html">회원가입</a></p>
     </section>
