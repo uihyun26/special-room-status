@@ -1,6 +1,6 @@
 const ROOMS = ["그룹스터디룸 1", "그룹스터디룸 2", "세미나실", "화학실험실", "물리실험실"];
 const PERIODS = ["1교시", "2교시", "3교시", "4교시", "5교시", "6교시", "7교시"];
-const STUDENT_ID_PATTERN = /^\d{4}$/;
+const STUDENT_ID_PATTERN = /^[1-3][1-6](0[1-9]|[1-9]\d)$/;
 const MIN_PASSWORD_LENGTH = 6;
 
 const reservations = [
@@ -164,7 +164,7 @@ if (authForm) {
     const password = authForm.elements["password"];
 
     if (!STUDENT_ID_PATTERN.test(studentId.value.trim())) {
-      return fail(studentId, "학번은 숫자 4자리로 입력해 주세요. (예: 2207)");
+      return fail(studentId, "학번 형식이 올바르지 않습니다. 학년(1~3)+반(1~6)+번호(2자리)로 입력해 주세요. (예: 2207)");
     }
 
     if (isSignup) {
