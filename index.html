@@ -19,6 +19,10 @@
   <main>
     <section id="status-section">
       <h2>신청 현황</h2>
+      <label class="date-picker">
+        조회 날짜
+        <input type="date" id="view-date">
+      </label>
       <div class="table-wrap">
         <table class="status-table" id="status-table"></table>
       </div>
@@ -29,6 +33,11 @@
     <section id="apply-section">
       <h2>신청하기</h2>
       <form class="apply-form">
+        <label>
+          신청 날짜
+          <input type="date" name="date" required>
+        </label>
+
         <label>
           신청 장소
           <select name="room" required>

@@ -3,10 +3,18 @@ const PERIODS = ["1교시", "2교시", "3교시", "4교시", "5교시", "6교시
 const STUDENT_ID_PATTERN = /^[1-3][1-6](0[1-9]|[1-9]\d)$/;
 const MIN_PASSWORD_LENGTH = 6;
 
+function formatDate(date) {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+const TODAY = formatDate(new Date());
+
 const reservations = [
-  { room: "그룹스터디룸 1", period: "5교시", purpose: "수학 문제 풀이", members: "2201 이서연", teacher: "" },
-  { room: "그룹스터디룸 2", period: "2교시", purpose: "팀 프로젝트 회의", members: "2203 박민준, 2204 최유진", teacher: "" },
-  { room: "화학실험실", period: "4교시", purpose: "화학실험 보고서 작성", members: "2207 김의현", teacher: "김선생" },
+  { date: TODAY, room: "그룹스터디룸 1", period: "5교시", purpose: "수학 문제 풀이", members: "2201 이서연", teacher: "" },
+  { date: TODAY, room: "그룹스터디룸 2", period: "2교시", purpose: "팀 프로젝트 회의", members: "2203 박민준, 2204 최유진", teacher: "" },
+  { date: TODAY, room: "화학실험실", period: "4교시", purpose: "화학실험 보고서 작성", members: "2207 김의현", teacher: "김선생" },
 ];
 
 function setMessage(element, text, type) {
@@ -20,10 +28,12 @@ if (statusTable) {
   const form = document.querySelector(".apply-form");
   const message = document.getElementById("form-message");
   const detailPanel = document.getElementById("detail-panel");
+  const viewDateInput = document.getElementById("view-date");
+  let viewDate = TODAY;
   let selected = null;
 
-  function isBooked(room, period) {
-    return reservations.some((r) => r.room === room && r.period === period);
+  function isBooked(date, room, period) {
+    return reservations.some((r) => r.date === date && r.room === room && r.period === period);
   }
 
   function countMembers(members) {
@@ -46,13 +56,13 @@ if (statusTable) {
   }
 
   function showDetail(room, period) {
-    const reservation = reservations.find((r) => r.room === room && r.period === period);
+    const reservation = reservations.find((r) => r.date === viewDate && r.room === room && r.period === period);
     if (!reservation) return;
 
     selected = { room, period };
 
     const title = document.createElement("h3");
-    title.textContent = `${room} · ${period}`;
+    title.textContent = `${viewDate} · ${room} · ${period}`;
 
     const list = document.createElement("dl");
     addDetailRow(list, "신청자", reservation.members);
@@ -91,7 +101,7 @@ if (statusTable) {
 
       PERIODS.forEach((period) => {
         const cell = row.insertCell();
-        if (!isBooked(room, period)) return;
+        if (!isBooked(viewDate, room, period)) return;
 
         cell.className = "booked";
         if (selected && selected.room === room && selected.period === period) {
@@ -123,6 +133,7 @@ if (statusTable) {
 
     const data = new FormData(form);
     const reservation = {
+      date: data.get("date"),
       room: data.get("room"),
       period: data.get("period"),
       purpose: data.get("purpose").trim(),
@@ -130,20 +141,47 @@ if (statusTable) {
       teacher: data.get("teacher").trim(),
     };
 
-    if (isBooked(reservation.room, reservation.period)) {
-      setMessage(message, `${reservation.room} ${reservation.period}는 이미 신청되어 있습니다.`, "error");
+    if (reservation.date < TODAY) {
+      setMessage(message, "지난 날짜는 신청할 수 없습니다.", "error");
+      return;
+    }
+
+    if (isBooked(reservation.date, reservation.room, reservation.period)) {
+      setMessage(
+        message,
+        `${reservation.date} ${reservation.room} ${reservation.period}는 이미 신청되어 있습니다.`,
+        "error"
+      );
       return;
     }
 
     reservations.push(reservation);
-    renderTable();
     form.reset();
-    setMessage(message, `${reservation.room} ${reservation.period} 신청이 완료되었습니다.`, "success");
+    form.elements["date"].value = reservation.date;
+    setViewDate(reservation.date);
+    setMessage(
+      message,
+      `${reservation.date} ${reservation.room} ${reservation.period} 신청이 완료되었습니다.`,
+      "success"
+    );
   });
 
+  function setViewDate(date) {
+    viewDate = date;
+    viewDateInput.value = date;
+    closeDetail();
+  }
+
+  viewDateInput.min = TODAY;
+  viewDateInput.addEventListener("change", () => {
+    if (viewDateInput.value) setViewDate(viewDateInput.value);
+  });
+
+  form.elements["date"].min = TODAY;
+  form.elements["date"].value = TODAY;
   fillOptions(form.elements["room"], ROOMS);
   fillOptions(form.elements["period"], PERIODS);
-  renderTable();
+  setViewDate(TODAY);
 }
 
 const authForm = document.querySelector(".auth-form");

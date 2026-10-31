@@ -175,6 +175,21 @@ button.secondary:hover {
   margin-bottom: 1rem;
 }
 
+.date-picker {
+  display: inline-block;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.date-picker input {
+  margin-left: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
 .apply-form input,
 .apply-form select,
 .apply-form textarea,
