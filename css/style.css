@@ -232,6 +232,27 @@ button.primary:hover {
   color: #c62828;
 }
 
+.form-message.info {
+  color: #555;
+}
+
+.my-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.my-item p {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  color: #555;
+}
+
 section.narrow {
   max-width: 380px;
   margin: 0 auto;

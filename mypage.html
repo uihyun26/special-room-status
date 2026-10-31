@@ -19,10 +19,13 @@
   <main>
     <section id="mypage-section">
       <h2>내가 신청한 내역</h2>
-      <p class="placeholder">다음 차시 이후에 본인의 신청 내역 목록이 이 자리에 들어갈 예정입니다.</p>
+      <div id="my-list">불러오는 중...</div>
+      <p id="my-message" class="form-message" role="status"></p>
     </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>
