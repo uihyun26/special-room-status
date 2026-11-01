@@ -4,6 +4,7 @@
 특별실 신청 현황을 시간표 형태로 모두에게 공유하고 중복 신청을 막아 주는 웹 서비스입니다.
 
 - 사이트: https://special-room-status.vercel.app
+- 소스 코드: https://github.com/uihyun26/special-room-status
 - 제작: 2207 김의현 (정보과학 프로젝트, Claude Code 사용)
 
 ## 주요 기능
