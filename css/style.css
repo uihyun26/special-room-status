@@ -232,6 +232,75 @@ button.primary:hover {
   color: #c62828;
 }
 
+.date-picker + .date-picker {
+  margin-left: 1.5rem;
+}
+
+.free-rooms {
+  margin-bottom: 1rem;
+}
+
+.free-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #17406b;
+}
+
+.free-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.free-room-button {
+  padding: 0.45rem 0.9rem;
+  border: 1px solid #1a7f37;
+  border-radius: 999px;
+  background: #eaf7ee;
+  color: #1a7f37;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.free-room-button:hover {
+  background: #d4efdc;
+}
+
+.status-table th.focus-col {
+  background: #fff1c2;
+}
+
+.status-table td.focus-col:not(.booked) {
+  background: #fff8e1;
+}
+
+.group-box {
+  margin-bottom: 1rem;
+}
+
+.group-box label {
+  margin-bottom: 0;
+}
+
+.group-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.group-actions input {
+  flex: 1 1 12rem;
+  margin-top: 0;
+}
+
+.group-box .form-message {
+  margin-top: 0.5rem;
+}
+
 .form-message.info {
   color: #555;
 }

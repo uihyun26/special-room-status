@@ -23,6 +23,13 @@
         조회 날짜
         <input type="date" id="view-date">
       </label>
+      <label class="date-picker">
+        빈 특별실 찾기
+        <select id="find-period">
+          <option value="">교시 선택</option>
+        </select>
+      </label>
+      <div id="free-rooms" class="free-rooms" role="status"></div>
       <div class="table-wrap">
         <table class="status-table" id="status-table"></table>
       </div>
@@ -57,10 +64,28 @@
           <input type="text" name="purpose" placeholder="예) 화학실험 보고서 작성" required>
         </label>
 
+        <div class="group-box">
+          <label>
+            저장된 그룹에서 명단 불러오기
+            <select id="group-select">
+              <option value="">그룹 선택 (선택 사항)</option>
+            </select>
+          </label>
+        </div>
+
         <label>
           사용 인원 명단 (학번/이름)
           <textarea name="members" rows="2" placeholder="예) 2207 김의현, 2208 홍길동" required></textarea>
         </label>
+
+        <div class="group-box">
+          <div class="group-actions">
+            <input type="text" id="group-name" placeholder="새 그룹 이름 (예: 정프 팀)" maxlength="30">
+            <button type="button" class="secondary" id="group-save">현재 명단을 그룹으로 저장</button>
+            <button type="button" class="secondary" id="group-delete">선택한 그룹 삭제</button>
+          </div>
+          <p id="group-message" class="form-message" role="status"></p>
+        </div>
 
         <label>
           담당 교사 (있는 경우)

@@ -17,6 +17,11 @@
 2. 중복 신청 방지: 같은 날짜·특별실·교시는 DB 제약으로 두 번째 신청이 거부된다.
 3. 신청 상세 보기: 표의 "신청됨" 칸을 누르면 신청자·인원·목적·담당 교사를 볼 수 있다.
 4. 마이페이지: 내가 신청한 내역을 보고 오늘 이후 신청은 취소할 수 있다.
+5. 빈 특별실 찾기: 교시를 고르면 조회 중인 날짜에 그 교시가 비어 있는 특별실만 보여 주고, 누르면 신청 폼에 날짜·특별실·교시가 자동으로 채워진다.
+6. 그룹 명단: 자주 쓰는 사용 인원 명단을 그룹으로 저장해 두고, 신청할 때 그룹을 고르면 명단이 자동으로 입력된다. (그룹은 본인만 볼 수 있다.)
+
+## 유지보수 이력
+- 사용자 피드백을 받아 "빈 특별실 찾기"와 "그룹 명단" 기능을 추가했다. (5회차)
 
 ## 기술 스택
 - 프론트엔드: HTML / CSS / JavaScript (프레임워크 없음)
@@ -39,6 +44,8 @@ supabase/schema.sql   DB 테이블과 접근 규칙(RLS)
 - `rooms`: 특별실 목록 (id, name, sort_order)
 - `reservations`: 신청 정보 (user_id, room_id, reserve_date, period, purpose, members, teacher)
   - `unique (room_id, reserve_date, period)` 제약으로 같은 칸의 중복 신청을 DB가 막는다.
+- `member_groups`: 자주 쓰는 인원 명단 (user_id, name, members)
+  - `unique (user_id, name)`으로 같은 사용자의 중복 이름을 막고, RLS로 본인 그룹만 조회·저장·삭제할 수 있다.
 - 회원 정보는 Supabase Auth(`auth.users`)가 관리한다.
   - 학번은 학년이 바뀌면 달라지므로 계정의 기본키로 쓰지 않고, 기본키는 auth id를 쓴다.
   - 학번은 수정 가능한 사용자 정보(user_metadata)로 저장하고, 로그인용 이메일은 `학번@special-room.local` 형태로 변환한다.
@@ -53,5 +60,5 @@ supabase/schema.sql   DB 테이블과 접근 규칙(RLS)
 6. 마이페이지에서 내 신청을 확인하고 "취소하기"로 취소한다.
 
 ## 개발 환경 메모
-- DB는 `supabase/schema.sql`의 [1]~[9]를 Supabase SQL Editor에서 순서대로 실행해 만든다.
+- DB는 `supabase/schema.sql`의 [1]~[14]를 Supabase SQL Editor에서 순서대로 실행해 만든다.
 - 클라이언트 키는 공개용(publishable)이며, 데이터 보호는 RLS가 담당한다. service_role(secret) 키는 저장소에 넣지 않는다.

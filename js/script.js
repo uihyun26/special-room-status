@@ -50,8 +50,17 @@ async function initStatusPage(user) {
   const detailPanel = document.getElementById("detail-panel");
   const viewDateInput = document.getElementById("view-date");
   const submitButton = form.querySelector('button[type="submit"]');
+  const findPeriodSelect = document.getElementById("find-period");
+  const freeRooms = document.getElementById("free-rooms");
+  const membersInput = form.elements["members"];
+  const groupSelect = document.getElementById("group-select");
+  const groupName = document.getElementById("group-name");
+  const groupSaveButton = document.getElementById("group-save");
+  const groupDeleteButton = document.getElementById("group-delete");
+  const groupMessage = document.getElementById("group-message");
 
   let rooms = [];
+  let groups = [];
   let reservations = [];
   let viewDate = TODAY;
   let selected = null;
@@ -114,6 +123,7 @@ async function initStatusPage(user) {
     ["특별실", ...PERIODS].forEach((text) => {
       const th = document.createElement("th");
       th.textContent = text;
+      if (text === findPeriodSelect.value) th.classList.add("focus-col");
       headRow.appendChild(th);
     });
 
@@ -126,9 +136,10 @@ async function initStatusPage(user) {
 
       PERIODS.forEach((period) => {
         const cell = row.insertCell();
+        if (period === findPeriodSelect.value) cell.classList.add("focus-col");
         if (!isBooked(room, period)) return;
 
-        cell.className = "booked";
+        cell.classList.add("booked");
         if (selected && selected.room === room && selected.period === period) {
           cell.classList.add("selected");
         }
@@ -142,6 +153,114 @@ async function initStatusPage(user) {
         cell.appendChild(button);
       });
     });
+
+    renderFreeRooms();
+  }
+
+  function useRoom(room, period) {
+    form.elements["date"].value = viewDate;
+    form.elements["room"].value = room;
+    form.elements["period"].value = period;
+    document.getElementById("apply-section").scrollIntoView({ behavior: "smooth" });
+    form.elements["purpose"].focus({ preventScroll: true });
+  }
+
+  function renderFreeRooms() {
+    freeRooms.innerHTML = "";
+    const period = findPeriodSelect.value;
+    if (!period) return;
+
+    const free = rooms.filter((r) => !isBooked(r.name, period));
+
+    const title = document.createElement("p");
+    title.className = "free-title";
+    title.textContent = free.length
+      ? `${viewDate} ${period}에 비어 있는 특별실 ${free.length}곳 (누르면 신청 폼에 자동으로 채워집니다)`
+      : `${viewDate} ${period}에는 비어 있는 특별실이 없습니다.`;
+    freeRooms.appendChild(title);
+
+    const list = document.createElement("div");
+    list.className = "free-list";
+    free.forEach(({ name }) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "free-room-button";
+      button.textContent = `${name} 신청하기`;
+      button.addEventListener("click", () => useRoom(name, period));
+      list.appendChild(button);
+    });
+    freeRooms.appendChild(list);
+  }
+
+  function renderGroups(selectedId) {
+    groupSelect.innerHTML = "";
+    groupSelect.appendChild(new Option("그룹 선택 (선택 사항)", ""));
+    groups.forEach((g) => groupSelect.appendChild(new Option(g.name, String(g.id))));
+    if (selectedId !== undefined) groupSelect.value = String(selectedId);
+  }
+
+  async function loadGroups(selectedId) {
+    if (!user) return;
+    const { data, error } = await db.from("member_groups").select("id, name, members").order("name");
+    if (error) {
+      setMessage(groupMessage, `그룹을 불러오지 못했습니다. (${error.message})`, "error");
+      return;
+    }
+    groups = data;
+    renderGroups(selectedId);
+  }
+
+  async function saveGroup() {
+    const name = groupName.value.trim();
+    const members = membersInput.value.trim();
+
+    if (!name) {
+      setMessage(groupMessage, "그룹 이름을 입력해 주세요.", "error");
+      groupName.focus();
+      return;
+    }
+    if (!members) {
+      setMessage(groupMessage, "저장할 사용 인원 명단을 먼저 입력해 주세요.", "error");
+      membersInput.focus();
+      return;
+    }
+
+    groupSaveButton.disabled = true;
+    const { data, error } = await db.from("member_groups").insert({ name, members }).select("id").single();
+    groupSaveButton.disabled = false;
+
+    if (error) {
+      const text =
+        error.code === "23505"
+          ? "같은 이름의 그룹이 이미 있습니다. 다른 이름을 입력해 주세요."
+          : `그룹 저장에 실패했습니다. (${error.message})`;
+      setMessage(groupMessage, text, "error");
+      return;
+    }
+
+    groupName.value = "";
+    await loadGroups(data.id);
+    setMessage(groupMessage, `"${name}" 그룹을 저장했습니다.`, "success");
+  }
+
+  async function deleteGroup() {
+    const group = groups.find((g) => String(g.id) === groupSelect.value);
+    if (!group) {
+      setMessage(groupMessage, "삭제할 그룹을 먼저 선택해 주세요.", "error");
+      return;
+    }
+    if (!window.confirm(`"${group.name}" 그룹을 삭제할까요?`)) return;
+
+    groupDeleteButton.disabled = true;
+    const { error } = await db.from("member_groups").delete().eq("id", group.id);
+    groupDeleteButton.disabled = false;
+
+    if (error) {
+      setMessage(groupMessage, `그룹 삭제에 실패했습니다. (${error.message})`, "error");
+      return;
+    }
+    await loadGroups();
+    setMessage(groupMessage, `"${group.name}" 그룹을 삭제했습니다.`, "success");
   }
 
   async function loadReservations() {
@@ -237,9 +356,34 @@ async function initStatusPage(user) {
     if (viewDateInput.value) setViewDate(viewDateInput.value);
   });
 
+  findPeriodSelect.addEventListener("change", renderTable);
+
+  groupSelect.addEventListener("change", () => {
+    const group = groups.find((g) => String(g.id) === groupSelect.value);
+    if (!group) return;
+    membersInput.value = group.members;
+    setMessage(groupMessage, `"${group.name}" 그룹의 명단을 불러왔습니다.`, "info");
+  });
+  groupSaveButton.addEventListener("click", saveGroup);
+  groupDeleteButton.addEventListener("click", deleteGroup);
+  groupName.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      saveGroup();
+    }
+  });
+
   form.elements["date"].min = TODAY;
   form.elements["date"].value = TODAY;
   fillOptions(form.elements["period"], PERIODS);
+  fillOptions(findPeriodSelect, PERIODS);
+
+  if (user) {
+    await loadGroups();
+  } else {
+    [groupSelect, groupName, groupSaveButton, groupDeleteButton].forEach((el) => (el.disabled = true));
+    setMessage(groupMessage, "로그인하면 자주 쓰는 인원 명단을 그룹으로 저장해 둘 수 있습니다.", "info");
+  }
 
   const { data: roomRows, error: roomError } = await db
     .from("rooms")

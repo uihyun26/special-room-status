@@ -1,5 +1,5 @@
 -- 특별실 이용 현황 공유 및 확인 서비스 - DB 스키마
--- Supabase SQL Editor 가 한 번에 쿼리 하나만 허용하므로, 아래 [1]~[9]를 순서대로 하나씩 실행한다.
+-- Supabase SQL Editor 가 한 번에 쿼리 하나만 허용하므로, 아래 [1]~[14]를 순서대로 실행한다. 한 번에 쿼리 하나만 허용되는 환경이면 하나씩, 아니면 한 번에 실행해도 된다.
 --
 -- 회원 정보: 별도 테이블 없이 Supabase Auth(auth.users)가 관리한다.
 --   - 계정의 기본키(식별자)는 auth id 이고, 학번/이름은 사용자 정보(user_metadata)로 저장한다.
@@ -59,4 +59,29 @@ create policy "reservations_insert_own" on public.reservations
 
 -- [9] 취소는 본인 신청만
 create policy "reservations_delete_own" on public.reservations
+  for delete to authenticated using (user_id = auth.uid());
+
+-- [10] 자주 쓰는 인원 명단(그룹): 신청할 때 불러와서 명단을 자동 입력한다.
+create table if not exists public.member_groups (
+  id bigint generated always as identity primary key,
+  user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  name text not null check (char_length(btrim(name)) > 0),
+  members text not null check (char_length(btrim(members)) > 0),
+  created_at timestamptz not null default now(),
+  constraint member_groups_user_name_unique unique (user_id, name)
+);
+
+-- [11]
+alter table public.member_groups enable row level security;
+
+-- [12] 그룹은 본인 것만 조회
+create policy "member_groups_select_own" on public.member_groups
+  for select to authenticated using (user_id = auth.uid());
+
+-- [13] 그룹은 본인 이름으로만 저장
+create policy "member_groups_insert_own" on public.member_groups
+  for insert to authenticated with check (user_id = auth.uid());
+
+-- [14] 그룹 삭제는 본인 것만
+create policy "member_groups_delete_own" on public.member_groups
   for delete to authenticated using (user_id = auth.uid());
