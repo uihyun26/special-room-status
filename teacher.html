@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>교사 알림함 - 특별실 이용 현황</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>교사 알림함</h1>
+    <nav>
+      <a href="index.html">현황 / 신청</a>
+      <a href="mypage.html">마이페이지</a>
+      <a href="teacher.html">교사 알림</a>
+      <a href="login.html">로그인</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="teacher-section">
+      <h2>담당 교사 알림함</h2>
+      <p class="hint">학생이 신청할 때 "담당 교사"에 선생님 성함을 입력하면 이곳에 표시됩니다.
+        선생님 성함을 입력하면 오늘 이후에 본인이 담당 교사로 지정된 신청을 볼 수 있고,
+        마지막으로 확인한 뒤 새로 들어오거나 수정된 신청에는 표시가 붙습니다.</p>
+      <form id="teacher-form" class="teacher-form">
+        <input type="text" name="teacher" placeholder="선생님 성함 (예: 김선생)" maxlength="30">
+        <button type="submit" class="primary">알림 확인</button>
+      </form>
+      <p id="teacher-message" class="form-message" role="status"></p>
+      <div id="teacher-list"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

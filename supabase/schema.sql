@@ -1,5 +1,5 @@
 -- 특별실 이용 현황 공유 및 확인 서비스 - DB 스키마
--- Supabase SQL Editor 가 한 번에 쿼리 하나만 허용하므로, 아래 [1]~[14]를 순서대로 실행한다. 한 번에 쿼리 하나만 허용되는 환경이면 하나씩, 아니면 한 번에 실행해도 된다.
+-- Supabase SQL Editor 가 한 번에 쿼리 하나만 허용하므로, 아래 [1]~[16]를 순서대로 실행한다. 한 번에 쿼리 하나만 허용되는 환경이면 하나씩, 아니면 한 번에 실행해도 된다.
 --
 -- 회원 정보: 별도 테이블 없이 Supabase Auth(auth.users)가 관리한다.
 --   - 계정의 기본키(식별자)는 auth id 이고, 학번/이름은 사용자 정보(user_metadata)로 저장한다.
@@ -85,3 +85,15 @@ create policy "member_groups_insert_own" on public.member_groups
 -- [14] 그룹 삭제는 본인 것만
 create policy "member_groups_delete_own" on public.member_groups
   for delete to authenticated using (user_id = auth.uid());
+
+-- [15] 신청이 수정된 시각 (교사 알림함의 "수정됨" 표시에 사용)
+alter table public.reservations add column if not exists updated_at timestamptz not null default now();
+
+-- [16] 신청 수정은 본인 신청만, 수정 후 날짜도 오늘(한국 시간) 이후여야 한다.
+create policy "reservations_update_own" on public.reservations
+  for update to authenticated
+  using (user_id = auth.uid())
+  with check (
+    user_id = auth.uid()
+    and reserve_date >= (now() at time zone 'Asia/Seoul')::date
+  );

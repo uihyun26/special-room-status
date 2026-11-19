@@ -319,6 +319,7 @@ async function initStatusPage(user) {
     const room = rooms.find((r) => r.name === data.get("room"));
     const reserveDate = data.get("date");
     const periodLabel = data.get("period");
+    const teacherName = data.get("teacher").trim();
 
     if (reserveDate < TODAY) {
       setMessage(message, "지난 날짜는 신청할 수 없습니다.", "error");
@@ -348,7 +349,8 @@ async function initStatusPage(user) {
     form.reset();
     form.elements["date"].value = reserveDate;
     await setViewDate(reserveDate);
-    setMessage(message, `${reserveDate} ${room.name} ${periodLabel} 신청이 완료되었습니다.`, "success");
+    const notice = teacherName ? ` ${teacherName} 선생님의 교사 알림함에 표시됩니다.` : "";
+    setMessage(message, `${reserveDate} ${room.name} ${periodLabel} 신청이 완료되었습니다.${notice}`, "success");
   });
 
   viewDateInput.min = TODAY;
@@ -502,6 +504,124 @@ async function initMyPage(user) {
     return;
   }
 
+  const { data: rooms, error: roomError } = await db.from("rooms").select("id, name").order("sort_order");
+  if (roomError) {
+    setMessage(message, `특별실 목록을 불러오지 못했습니다. (${roomError.message})`, "error");
+    return;
+  }
+
+  function addField(form, labelText, control) {
+    const label = document.createElement("label");
+    label.append(labelText, control);
+    form.appendChild(label);
+    return control;
+  }
+
+  function makeSelect(items, value) {
+    const select = document.createElement("select");
+    items.forEach(({ text, val }) => select.appendChild(new Option(text, String(val))));
+    select.value = String(value);
+    return select;
+  }
+
+  function renderEditForm(item, card) {
+    const form = document.createElement("form");
+    form.className = "edit-form";
+
+    const dateInput = document.createElement("input");
+    dateInput.type = "date";
+    dateInput.min = TODAY;
+    dateInput.value = item.reserve_date;
+    dateInput.required = true;
+
+    const roomSelect = makeSelect(rooms.map((r) => ({ text: r.name, val: r.id })), item.room_id);
+    const periodSelect = makeSelect(
+      PERIODS.map((p, i) => ({ text: p, val: i + 1 })),
+      item.period
+    );
+
+    const purposeInput = document.createElement("input");
+    purposeInput.type = "text";
+    purposeInput.value = item.purpose;
+    purposeInput.required = true;
+
+    const membersInput = document.createElement("textarea");
+    membersInput.rows = 2;
+    membersInput.value = item.members;
+    membersInput.required = true;
+
+    const teacherInput = document.createElement("input");
+    teacherInput.type = "text";
+    teacherInput.value = item.teacher || "";
+
+    addField(form, "날짜", dateInput);
+    addField(form, "특별실", roomSelect);
+    addField(form, "교시", periodSelect);
+    addField(form, "목적", purposeInput);
+    addField(form, "사용 인원 명단", membersInput);
+    addField(form, "담당 교사 (있는 경우)", teacherInput);
+
+    const buttons = document.createElement("div");
+    buttons.className = "edit-actions";
+    const saveButton = document.createElement("button");
+    saveButton.type = "submit";
+    saveButton.className = "primary";
+    saveButton.textContent = "저장";
+    const cancelEdit = document.createElement("button");
+    cancelEdit.type = "button";
+    cancelEdit.className = "secondary";
+    cancelEdit.textContent = "수정 취소";
+    cancelEdit.addEventListener("click", () => loadList());
+    buttons.append(saveButton, cancelEdit);
+    form.appendChild(buttons);
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      if (dateInput.value < TODAY) {
+        setMessage(message, "지난 날짜로는 수정할 수 없습니다.", "error");
+        return;
+      }
+
+      saveButton.disabled = true;
+      const { data, error } = await db
+        .from("reservations")
+        .update({
+          reserve_date: dateInput.value,
+          room_id: Number(roomSelect.value),
+          period: Number(periodSelect.value),
+          purpose: purposeInput.value.trim(),
+          members: membersInput.value.trim(),
+          teacher: teacherInput.value.trim() || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", item.id)
+        .select("id");
+      saveButton.disabled = false;
+
+      if (error) {
+        const text =
+          error.code === "23505"
+            ? "수정하려는 날짜·특별실·교시는 이미 다른 신청이 있습니다."
+            : `수정에 실패했습니다. (${error.message})`;
+        setMessage(message, text, "error");
+        return;
+      }
+      if (data.length === 0) {
+        setMessage(message, "수정할 수 없는 신청입니다. (본인 신청이 아니거나 이미 지난 신청)", "error");
+        return;
+      }
+
+      await loadList();
+      setMessage(message, "신청이 수정되었습니다.", "success");
+    });
+
+    card.classList.add("editing");
+    card.innerHTML = "";
+    card.appendChild(form);
+    purposeInput.focus();
+  }
+
   function renderItem(item) {
     const card = document.createElement("div");
     card.className = "my-item";
@@ -515,6 +635,15 @@ async function initMyPage(user) {
     card.appendChild(info);
 
     if (item.reserve_date >= TODAY) {
+      const actions = document.createElement("div");
+      actions.className = "my-actions";
+
+      const editButton = document.createElement("button");
+      editButton.type = "button";
+      editButton.className = "secondary";
+      editButton.textContent = "수정하기";
+      editButton.addEventListener("click", () => renderEditForm(item, card));
+
       const cancelButton = document.createElement("button");
       cancelButton.type = "button";
       cancelButton.className = "secondary";
@@ -532,7 +661,9 @@ async function initMyPage(user) {
         await loadList();
         setMessage(message, "신청이 취소되었습니다.", "success");
       });
-      card.appendChild(cancelButton);
+
+      actions.append(editButton, cancelButton);
+      card.appendChild(actions);
     }
     return card;
   }
@@ -540,7 +671,7 @@ async function initMyPage(user) {
   async function loadList() {
     const { data, error } = await db
       .from("reservations")
-      .select("id, reserve_date, period, purpose, members, teacher, rooms(name)")
+      .select("id, reserve_date, room_id, period, purpose, members, teacher, rooms(name)")
       .eq("user_id", user.id)
       .order("reserve_date", { ascending: false })
       .order("period");
@@ -560,9 +691,120 @@ async function initMyPage(user) {
   await loadList();
 }
 
+async function initTeacherPage() {
+  const form = document.getElementById("teacher-form");
+  if (!form) return;
+
+  const input = form.elements["teacher"];
+  const list = document.getElementById("teacher-list");
+  const message = document.getElementById("teacher-message");
+
+  function readStorage(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function writeStorage(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      // 저장이 막힌 환경에서는 "새 신청" 표시 기준만 기억하지 못한다.
+    }
+  }
+
+  async function load(name) {
+    list.innerHTML = "";
+    message.textContent = "";
+    message.className = "form-message";
+
+    const { data, error } = await db
+      .from("reservations")
+      .select("id, reserve_date, period, purpose, members, teacher, created_at, updated_at, rooms(name)")
+      .not("teacher", "is", null)
+      .gte("reserve_date", TODAY)
+      .order("reserve_date")
+      .order("period");
+
+    if (error) {
+      setMessage(message, `알림을 불러오지 못했습니다. (${error.message})`, "error");
+      return;
+    }
+
+    const mine = data.filter((r) => r.teacher.includes(name));
+    if (mine.length === 0) {
+      setMessage(message, `"${name}" 선생님이 담당 교사로 지정된 오늘 이후의 신청이 없습니다.`, "info");
+      return;
+    }
+
+    const seenKey = `teacherSeen:${name}`;
+    const lastSeen = Number(readStorage(seenKey) || 0);
+    let newest = lastSeen;
+    let freshCount = 0;
+
+    mine.forEach((r) => {
+      const created = Date.parse(r.created_at);
+      const updated = Date.parse(r.updated_at);
+      let badge = "";
+      if (created > lastSeen) badge = "새 신청";
+      else if (updated > lastSeen && updated > created) badge = "수정됨";
+      if (badge) freshCount += 1;
+      newest = Math.max(newest, created, updated);
+
+      const card = document.createElement("div");
+      card.className = "my-item";
+
+      const info = document.createElement("div");
+      const title = document.createElement("strong");
+      title.textContent = `${r.reserve_date} ${PERIODS[r.period - 1]} · ${r.rooms.name}`;
+      if (badge) {
+        const tag = document.createElement("span");
+        tag.className = "badge";
+        tag.textContent = badge;
+        title.append(" ", tag);
+      }
+      const detail = document.createElement("p");
+      detail.textContent = `${r.purpose} / 신청자: ${r.members}`;
+      info.append(title, detail);
+      card.appendChild(info);
+      list.appendChild(card);
+    });
+
+    writeStorage(seenKey, String(newest));
+    writeStorage("teacherName", name);
+    setMessage(
+      message,
+      freshCount
+        ? `"${name}" 선생님께 새로 들어오거나 수정된 신청이 ${freshCount}건 있습니다.`
+        : `"${name}" 선생님의 신청 ${mine.length}건입니다. 새로 들어온 신청은 없습니다.`,
+      freshCount ? "success" : "info"
+    );
+  }
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const name = input.value.trim();
+    if (!name) {
+      setMessage(message, "선생님 성함을 입력해 주세요.", "error");
+      input.focus();
+      return;
+    }
+    load(name);
+  });
+
+  const saved = readStorage("teacherName");
+  if (saved) {
+    input.value = saved;
+    await load(saved);
+  }
+}
+
 (async function init() {
   const user = await setupNav();
   await initStatusPage(user);
   initAuthPage(user);
   await initMyPage(user);
+  await initTeacherPage();
 })();

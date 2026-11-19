@@ -316,6 +316,68 @@ button.primary:hover {
   border-radius: 8px;
 }
 
+.my-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.my-item.editing {
+  display: block;
+}
+
+.edit-form label {
+  display: block;
+  margin-bottom: 0.7rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.edit-form input,
+.edit-form select,
+.edit-form textarea {
+  display: block;
+  width: 100%;
+  margin-top: 0.3rem;
+  padding: 0.5rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.teacher-form {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.teacher-form input {
+  flex: 1;
+  padding: 0.55rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: #c62828;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
 .my-item p {
   margin: 0.3rem 0 0;
   font-size: 0.9rem;
